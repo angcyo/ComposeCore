@@ -1,0 +1,61 @@
+apply from: "$gradleHost/master/key.gradle"
+apply from: "$gradleHost/master/v7v8a.gradle"
+//output
+apply from: "$gradleHost/master/collectProduct.gradle"
+
+def _C_SDK = project.hasProperty("C_SDK") ? project.ext.C_SDK : '36'
+def _M_SDK = project.hasProperty("M_SDK") ? project.ext.M_SDK : '24'
+def _T_SDK = project.hasProperty("T_SDK") ? project.ext.T_SDK : '36'
+def _V_CODE = project.hasProperty("V_CODE") ? project.ext.V_CODE : '1'
+def _V_NAME = project.hasProperty("V_NAME") ? project.ext.V_NAME : '1.0'
+def application_id = project.hasProperty("application_id") ? project.ext.application_id : 'com.angcyo.app'
+def _namespace = project.hasProperty("namespace") ? project.ext.namespace : application_id
+
+def _minify_enabled_debug = project.hasProperty("minify_enabled_debug") ? (project.ext.minify_enabled_debug == "true") : false
+def _use_proguard_debug = project.hasProperty("use_proguard_debug") ? (project.ext.use_proguard_debug == "true") : false
+def _minify_enabled = project.hasProperty("minify_enabled") ? (project.ext.minify_enabled == "true") : _minify_enabled_debug
+def _use_proguard = project.hasProperty("use_proguard") ? (project.ext.use_proguard == "true") : _minify_enabled
+
+android {
+    if (project.android.hasProperty("namespace")) {
+        namespace "$_namespace" //gradle7.5+
+    }
+    compileSdk {
+        version = release(Integer.parseInt(_C_SDK))
+    }
+
+    defaultConfig {
+        applicationId "$application_id"
+
+        minSdk Integer.parseInt(_M_SDK)
+        targetSdk Integer.parseInt(_T_SDK)
+        versionCode Integer.parseInt(_V_CODE)
+        versionName "$_V_NAME"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled _minify_enabled_debug
+            signingConfig signingConfigs.angcyo
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        release {
+            minifyEnabled _minify_enabled
+            signingConfig signingConfigs.angcyo
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+    kotlinOptions {
+        jvmTarget = '11'
+    }
+    buildFeatures {
+        compose true
+        //buildConfig true
+    }
+}
