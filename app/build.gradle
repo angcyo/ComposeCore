@@ -10,5 +10,5 @@ android {
 apply from: allGradle.composeLib
 
 dependencies {
-    implementation project(allModule.core)
+    api project(allModule.core)
 }

@@ -10,5 +10,9 @@ android {
 apply from: allGradle.composeLib
 
 dependencies {
-    implementation project(allModule.basics)
+    api project(allModule.basics)
+
+    api libs.androidx.compose.ui.tooling.preview
+    api libs.androidx.compose.material3
+    api libs.androidx.compose.material3.adaptive.navigation.suite
 }

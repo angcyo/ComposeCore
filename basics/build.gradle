@@ -10,5 +10,13 @@ android {
 apply from: allGradle.composeLib
 
 dependencies {
-    //implementation project(allModule.basics)
+    implementation platform(libs.androidx.compose.bom)
+    implementation libs.androidx.compose.ui
+
+    implementation libs.androidx.savedstate.ktx
+
+    implementation libs.androidx.lifecycle.viewmodel.compose
+    implementation libs.androidx.lifecycle.viewmodel.ktx
+
+    implementation libs.androidx.compose.runtime
 }
