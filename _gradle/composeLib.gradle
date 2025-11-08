@@ -1,0 +1,37 @@
+def _C_SDK = project.hasProperty("C_SDK") ? project.ext.C_SDK : '36'
+def _M_SDK = project.hasProperty("M_SDK") ? project.ext.M_SDK : '24'
+
+android {
+    compileSdk {
+        version = release(Integer.parseInt(_C_SDK))
+    }
+
+    defaultConfig {
+        minSdk Integer.parseInt(_M_SDK)
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+    kotlinOptions {
+        jvmTarget = '11'
+    }
+}
+
+dependencies {
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.appcompat
+    implementation libs.material
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.junit
+    androidTestImplementation libs.androidx.espresso.core
+}
