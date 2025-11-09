@@ -55,8 +55,7 @@ var unknownScene = SceneRoute(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color(0xFFFF0000))/*背景颜色ARGB*/
-                .border(1.dp, Color.Magenta) /*边框*/,
-            contentAlignment = Alignment.Center
+                .border(1.dp, Color.Magenta) /*边框*/, contentAlignment = Alignment.Center
         ) {
             Text("Unknown route")
         }
@@ -91,9 +90,7 @@ fun RunNavApp(
             "/",
             content = {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color(0xFFFf0000)), // 背景颜色
+                    modifier = Modifier.fillMaxSize(), // 背景颜色
                     contentAlignment = Alignment.Center
                 ) {
                     Text("Hello Jetpack Compose")
@@ -139,16 +136,9 @@ fun RunNavApp(
                 scene.content()
             }
         }) {
-            //NavEntry(Unit) { Text("Unknown route") }
-            /*NavEntry(key) {
-                *//* ContentGreen("Welcome to Nav3") {
-                     Button(onClick = {
-                         backStack.add(Product("123"))
-                     }) {
-                         Text("Click to navigate")
-                     }
-                 }*//*
-            }*/
+            entry<SceneRoute> {
+                it.content()
+            }
         },
     )
 }
