@@ -1,8 +1,8 @@
 plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.jetbrains.kotlin.serialization)
+    alias(llibs.plugins.android.library)
+    alias(llibs.plugins.kotlin.android)
+    alias(llibs.plugins.kotlin.compose)
+    alias(llibs.plugins.jetbrains.kotlin.serialization)
 }
 
 android {

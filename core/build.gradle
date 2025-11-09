@@ -1,8 +1,8 @@
 plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.jetbrains.kotlin.serialization)
+    alias(llibs.plugins.android.library)
+    alias(llibs.plugins.kotlin.android)
+    alias(llibs.plugins.kotlin.compose)
+    alias(llibs.plugins.jetbrains.kotlin.serialization)
 }
 
 android {
@@ -14,13 +14,18 @@ apply from: allGradle.composeLib
 dependencies {
     api project(allModule.basics)
 
-    api libs.androidx.compose.ui.tooling.preview
-    api libs.androidx.compose.material3
-    api libs.androidx.compose.material3.adaptive.navigation.suite
+    // compose
+    api llibs.androidx.compose.ui.tooling.preview
+    api llibs.androidx.compose.material3
+    // navigation3
+    //api llibs.androidx.navigation3.runtime
+    api llibs.androidx.navigation3.ui
+    api llibs.androidx.lifecycle.viewmodel.navigation3
+
+    //api libs.androidx.compose.material3.adaptive.navigation.suite
 
     //api libs.androidx.compose.runtime
-    api libs.androidx.navigation3.ui
-    api libs.androidx.lifecycle.viewmodel.navigation3
+    //api libs.androidx.navigation3.ui
     //api libs.androidx.navigation3.runtime
     //api libs.androidx.material3.adaptive.navigation3
     //api libs.kotlinx.serialization.core

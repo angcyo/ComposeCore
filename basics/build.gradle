@@ -1,8 +1,8 @@
 plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.jetbrains.kotlin.serialization)
+    alias(llibs.plugins.android.library)
+    alias(llibs.plugins.kotlin.android)
+    alias(llibs.plugins.kotlin.compose)
+    alias(llibs.plugins.jetbrains.kotlin.serialization)
 }
 
 android {
@@ -12,16 +12,20 @@ android {
 apply from: allGradle.composeLib
 
 dependencies {
-    api platform(libs.androidx.compose.bom)
-    api libs.androidx.compose.ui
+    // android
+    api llibs.androidx.core.ktx
+    api llibs.androidx.lifecycle.runtime.ktx
+    api llibs.androidx.lifecycle.viewmodel.ktx
 
-    api libs.androidx.savedstate.ktx
+    // kotlin
+    api llibs.kotlinx.serialization.core
+    api llibs.kotlinx.serialization.json
 
-    api libs.androidx.lifecycle.viewmodel.compose
-    api libs.androidx.lifecycle.viewmodel.ktx
+    // compose
+    api platform(llibs.androidx.compose.bom)
+    api llibs.androidx.compose.ui
+    api llibs.androidx.lifecycle.viewmodel.compose
+    //api llibs.androidx.compose.runtime
 
-    api libs.androidx.compose.runtime
-
-    api libs.kotlinx.serialization.core
-    api libs.kotlinx.serialization.json
+    //api llibs.androidx.savedstate.ktx
 }
