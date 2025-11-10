@@ -91,6 +91,9 @@ import androidx.savedstate.SavedStateRegistryOwner
  *
  * # 自定义 [CompositionLocal]
  *
+ * 使用 CompositionLocal 将数据的作用域限定在局部
+ * https://developer.android.com/develop/ui/compose/compositionlocal?hl=zh-cn
+ *
  * ```
  * // 创建
  * val LocalMyService = staticCompositionLocalOf<MyService> { error("No MyService provided") }

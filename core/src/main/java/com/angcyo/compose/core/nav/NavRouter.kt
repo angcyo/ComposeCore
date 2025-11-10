@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,6 +27,7 @@ import androidx.navigation3.scene.SinglePaneSceneStrategy
 import androidx.navigation3.ui.NavDisplay
 import com.angcyo.compose.basics.annotation.Api
 import com.angcyo.compose.basics.annotation.Property
+import com.angcyo.compose.basics.unit.L
 import kotlinx.serialization.Serializable
 
 /**
@@ -42,22 +44,32 @@ class NavRouter {
 
     /**路由表*/
     @Property
-    val routeList = mutableListOf<SceneRoute>()
+    val routeList = mutableListOf<ScreenRoute>()
 
-    /**路由内容映射, 路由[SceneRoute.path]对应的*/
+    /**路由内容映射, 路由[ScreenRoute.path]对应的*/
     @Property
     val routeMap = mutableMapOf<String, @Composable () -> Unit>()
 
     /**定义一个路由*/
     @Api
-    fun route(path: String, name: String = "", content: @Composable () -> Unit) {
-        routeList.add(SceneRoute(path, name))
+    fun route(
+        path: String,
+        name: String? = null,
+        label: String? = null,
+        content: @Composable () -> Unit
+    ) {
+        routeList.add(ScreenRoute(path, name, label))
         routeMap[path] = content
     }
 
     @Api
-    operator fun set(path: String, name: String = "", content: @Composable () -> Unit) {
-        route(path, name, content)
+    operator fun set(
+        path: String,
+        name: String? = null,
+        label: String? = null,
+        content: @Composable () -> Unit
+    ) {
+        route(path, name, label, content)
     }
 
     /**
@@ -70,12 +82,13 @@ class NavRouter {
     @Composable
     fun RouterBuild() {
         if (routeList.isEmpty()) {
-            routeList.add(SceneRoute("/"))
+            routeList.add(ScreenRoute("/"))
         }
+        //导航
         val backStack = rememberNavBackStack(*routeList.toTypedArray())
         CompositionLocalProvider(
             LocalNavBackStack provides backStack,
-            LocalNavRouter provides this
+            LocalNavRouter provides this,
         ) {
             NavDisplay(
                 backStack,
@@ -86,6 +99,7 @@ class NavRouter {
                     rememberViewModelStoreNavEntryDecorator()
                 ),
                 onBack = {
+                    L.d("路由Back")
                     if (backStack.isNotEmpty()) {
                         backStack.removeLastOrNull()
                     }
@@ -99,7 +113,7 @@ class NavRouter {
                                 .border(1.dp, Color.Magenta) /*边框*/,
                             contentAlignment = Alignment.Center
                         ) {
-                            val text = if (unknownScreen is SceneRoute) {
+                            val text = if (unknownScreen is ScreenRoute) {
                                 "Unknown ${unknownScreen.path}"
                             } else {
                                 "Unknown $unknownScreen"
@@ -111,20 +125,24 @@ class NavRouter {
                         }
                     }
                 }) {
-                    entry<SceneRoute> { route ->
-                        val content = routeMap[route.path]
-                        if (content == null) {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    "404 ${route.path}",
-                                    modifier = Modifier.clickable(onClick = { backStack.removeLastOrNull() })
-                                )
+                    entry<ScreenRoute> { route ->
+                        // 路由内容
+                        L.d("显示路由->${route}")
+                        CompositionLocalProvider(LocalCurrentRoute provides route) {
+                            val content = routeMap[route.path]
+                            if (content == null) {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        "404 ${route.path}",
+                                        modifier = Modifier.clickable(onClick = { backStack.removeLastOrNull() })
+                                    )
+                                }
+                            } else {
+                                content()
                             }
-                        } else {
-                            content()
                         }
                     }
                 },
@@ -142,12 +160,19 @@ class NavRouter {
  * ```
  * */
 @Serializable
-data class SceneRoute(
-    /**路由路径*/
+data class ScreenRoute(
+    /**路由的路径*/
     val path: String = "",
-    /**路由名称*/
-    val name: String = "",
-) : NavKey
+    /**路由的名称*/
+    val name: String? = null,
+    /**路由显示的标签*/
+    val label: String? = null,
+) : NavKey {
+
+    val showLabel: String
+        get() = label ?: name ?: path
+
+}
 
 /**App导航回退栈
  *
@@ -159,5 +184,9 @@ val LocalNavBackStack = compositionLocalOf<NavBackStack<NavKey>?> { null }
 /**[NavRouter]*/
 val LocalNavRouter = compositionLocalOf<NavRouter?> { null }
 
+/**
+ * 最后一次显示的屏幕
+ * [ScreenRoute]*/
+val LocalCurrentRoute = compositionLocalOf<ScreenRoute?> { null }
 
 
