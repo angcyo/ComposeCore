@@ -17,6 +17,7 @@ dependencies {
     // compose
     api llibs.androidx.compose.ui.tooling.preview
     api llibs.androidx.compose.material3
+    api llibs.androidx.compose.material3.adaptive
     // navigation3
     //api llibs.androidx.navigation3.runtime
     api llibs.androidx.navigation3.ui

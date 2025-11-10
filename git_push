@@ -7,6 +7,6 @@ set +x
 git remote -v
 
 git add .
-git commit -a -m "init dependencies"
+git commit -a -m "init navigation"
 git push --set-upstream origin main
 
