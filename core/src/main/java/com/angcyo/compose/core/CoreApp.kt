@@ -20,5 +20,6 @@ fun RunNavApp(
     routerConfig: NavRouter.() -> Unit
 ) {
     val router = NavRouter()
+    router.routerConfig()
     router.RouterBuild()
 }
