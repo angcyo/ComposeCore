@@ -1,5 +1,9 @@
 package com.angcyo.compose.core.nav
 
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -9,7 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,7 +28,11 @@ import androidx.navigation3.scene.DialogSceneStrategy
 import androidx.navigation3.scene.SceneStrategy
 import androidx.navigation3.scene.SinglePaneSceneStrategy
 import androidx.navigation3.ui.NavDisplay
+import androidx.navigation3.ui.defaultPopTransitionSpec
+import androidx.navigation3.ui.defaultPredictivePopTransitionSpec
+import androidx.navigation3.ui.defaultTransitionSpec
 import com.angcyo.compose.basics.annotation.Api
+import com.angcyo.compose.basics.annotation.Config
 import com.angcyo.compose.basics.annotation.Property
 import com.angcyo.compose.basics.unit.L
 import kotlinx.serialization.Serializable
@@ -42,6 +49,11 @@ import kotlinx.serialization.Serializable
  */
 class NavRouter {
 
+    companion object {
+        /**默认的主页*/
+        const val INITIAL_PATH: String = "/"
+    }
+
     /**路由表*/
     @Property
     val routeList = mutableListOf<ScreenRoute>()
@@ -50,7 +62,10 @@ class NavRouter {
     @Property
     val routeMap = mutableMapOf<String, @Composable () -> Unit>()
 
-    /**定义一个路由*/
+    @Config
+    lateinit var initialPath: String;
+
+    /**添加一个路由*/
     @Api
     fun route(
         path: String,
@@ -72,7 +87,38 @@ class NavRouter {
         route(path, name, label, content)
     }
 
+    //--
+
+    /**推进一个路由*/
+    @Api
+    fun push(
+        navBack: NavBackStack<NavKey>?,
+        route: ScreenRoute?,
+        path: String? = null,
+        name: String? = null
+    ) {
+        val route = route ?: routeList.find {
+            if (path != null) {
+                it.path == path
+            } else if (name != null) {
+                it.name == name
+            } else {
+                false
+            }
+        }
+        //--
+        if (route != null) {
+            navBack?.add(route)
+        } else {
+            navBack?.add(ScreenRoute(path ?: name ?: "/404", name))
+        }
+    }
+
+    //--
+
     /**
+     * - [initialPath] 路由初始化路径
+     *
      * - [SceneStrategy]
      *  - [SinglePaneSceneStrategy]
      *  - [DialogSceneStrategy]
@@ -80,12 +126,16 @@ class NavRouter {
      * */
     @Api
     @Composable
-    fun RouterBuild() {
+    fun RouterBuild(initialPath: String = INITIAL_PATH) {
+        this.initialPath = initialPath
         if (routeList.isEmpty()) {
-            routeList.add(ScreenRoute("/"))
+            routeList.add(ScreenRoute(INITIAL_PATH))
         }
         //导航
-        val backStack = rememberNavBackStack(*routeList.toTypedArray())
+        val backStack = rememberNavBackStack(
+            /**routeList.toTypedArray()*/
+            routeList.find { it.path == initialPath } ?: routeList.first()
+        )
         CompositionLocalProvider(
             LocalNavBackStack provides backStack,
             LocalNavRouter provides this,
@@ -103,6 +153,24 @@ class NavRouter {
                     if (backStack.isNotEmpty()) {
                         backStack.removeLastOrNull()
                     }
+                },
+                transitionSpec = {
+                    ContentTransform(
+                        fadeIn(animationSpec = tween(DEFAULT_TRANSITION_DURATION_MILLISECOND)),
+                        fadeOut(animationSpec = tween(DEFAULT_TRANSITION_DURATION_MILLISECOND)),
+                    )
+                },
+                popTransitionSpec = {
+                    ContentTransform(
+                        fadeIn(animationSpec = tween(DEFAULT_TRANSITION_DURATION_MILLISECOND)),
+                        fadeOut(animationSpec = tween(DEFAULT_TRANSITION_DURATION_MILLISECOND)),
+                    )
+                },
+                predictivePopTransitionSpec = {
+                    ContentTransform(
+                        fadeIn(animationSpec = tween(DEFAULT_TRANSITION_DURATION_MILLISECOND)),
+                        fadeOut(animationSpec = tween(DEFAULT_TRANSITION_DURATION_MILLISECOND)),
+                    )
                 },
                 entryProvider = entryProvider({ unknownScreen ->
                     NavEntry(unknownScreen) {
@@ -173,6 +241,14 @@ data class ScreenRoute(
         get() = label ?: name ?: path
 
 }
+
+/**默认的导航动画时长
+ * - [defaultTransitionSpec]
+ * - [defaultPopTransitionSpec]
+ * - [defaultPredictivePopTransitionSpec]
+ * */
+const val DEFAULT_TRANSITION_DURATION_MILLISECOND = 300
+
 
 /**App导航回退栈
  *
