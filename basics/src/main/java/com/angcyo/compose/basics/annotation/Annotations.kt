@@ -39,3 +39,35 @@ annotation class Config
     AnnotationTarget.PROPERTY,
 )
 annotation class Output
+
+/**需要提前调用的初始化方法*/
+@MustBeDocumented
+@Retention(AnnotationRetention.BINARY)
+@Target(
+    AnnotationTarget.FUNCTION,
+)
+annotation class Initial
+
+/**全局实例*/
+@MustBeDocumented
+@Retention(AnnotationRetention.BINARY)
+@Target(
+    AnnotationTarget.PROPERTY
+)
+annotation class GlobalInstance
+
+/**dsl*/
+@Target(AnnotationTarget.FUNCTION)
+@Retention(AnnotationRetention.SOURCE)
+annotation class DSL
+
+/**标识方法需要合规后调用*/
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY,
+    AnnotationTarget.FIELD,
+    AnnotationTarget.LOCAL_VARIABLE,
+    AnnotationTarget.VALUE_PARAMETER
+)
+@Retention(AnnotationRetention.SOURCE)
+annotation class CallComplianceAfter

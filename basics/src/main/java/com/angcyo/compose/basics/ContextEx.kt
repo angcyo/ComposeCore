@@ -5,13 +5,11 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
 import android.provider.Settings
 import android.text.TextUtils
 import android.widget.Toast
 import androidx.core.net.toUri
-import java.io.BufferedReader
-import java.util.concurrent.TimeUnit
+import com.angcyo.compose.basics.unit.L
 
 /**
  * @author <a href="mailto:angcyo@126.com">angcyo</a>
@@ -47,12 +45,22 @@ fun Context.requestIgnoreBatteryOptimizations() {
  * java.lang.NullPointerException: Parameter specified as non-null is null: method androidx.activity.ComponentActivity.startActivityForResult, parameter intent
  * ```
  * */
-fun Context.startApp(packageName: String) {
-    val intent =
-        getAppOpenIntentByPackageName(packageName) ?: packageManager.getLaunchIntentForPackage(
-            packageName
-        )
-    startActivity(intent)
+fun Context.startApp(packageName: String): Boolean {
+    try {
+        val intent =
+            getAppOpenIntentByPackageName(packageName) ?: packageManager.getLaunchIntentForPackage(
+                packageName
+            )
+        if (intent == null) {
+            L.w("未找到启动的应用程序[$packageName]")
+            return false
+        }
+        startActivity(intent)
+        return true
+    } catch (e: Exception) {
+        e.printStackTrace()
+        return false
+    }
 }
 
 /**
@@ -90,14 +98,27 @@ fun Context.getAppOpenIntentByPackageName(packageName: String): Intent? {
     return intent
 }
 
-/**使用Root的方式启动应用程序*/
-fun Context.startAppWithRoot(packageName: String) {
+/**使用Root的方式启动应用程序
+ *
+ * ```
+ * Caused by: java.io.IOException: Cannot run program "su": error=2, No such file or directory
+ * ```
+ * */
+fun Context.startAppWithRoot(packageName: String): Boolean {
     val intent =
         getAppOpenIntentByPackageName(packageName) ?: packageManager.getLaunchIntentForPackage(
             packageName
         )
     if (intent != null) {
         val cmd = "am start -n $packageName/${intent.component?.className ?: ".MainActivity"}"
-        Runtime.getRuntime().exec(arrayOf("su", "-c", cmd))
+        try {
+            Runtime.getRuntime().exec(arrayOf("su", "-c", cmd))
+            return true
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    } else {
+        L.w("未找到启动的应用程序[$packageName]")
     }
+    return false
 }

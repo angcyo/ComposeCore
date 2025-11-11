@@ -1,0 +1,256 @@
+package com.angcyo.compose.basics.unit
+
+import android.content.Context
+import android.graphics.Bitmap
+import com.angcyo.compose.basics.global.app
+import com.angcyo.compose.basics.hawk.LibHawkKeys
+import com.angcyo.compose.basics.unit.FileUtils.writeExternal
+import java.io.File
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.UUID
+
+/**
+ * Android Q 扩展的程序目录操作
+ *
+ * 卸载后会丢失, 不需要申请权限
+ *
+ * /storage/emulated/0/Android/data/com.angcyo.uicore.demo/files/$type
+ *
+ * Email:angcyo@126.com
+ * @author angcyo
+ * @date 2019/12/30
+ * Copyright (c) 2019 ShenZhen O&M Cloud Co., Ltd. All rights reserved.
+ */
+
+/**
+ * 写入文件的数据, 支持以下数据类型
+ * [String]
+ * [ByteArray]
+ * [Bitmap]
+ * [File]
+ *
+ * [com.angcyo.library.utils.FileUtils.writeExternal]
+ * */
+typealias FileTextData = Any
+
+object FileUtils {
+
+    /**允许写入单个文件的最大大小10mb, 之后会重写*/
+    val fileMaxSize: Long
+        get() = LibHawkKeys.logFileMaxSize
+
+    /**所有文件写入的在此根目录下*/
+    var rootFolder: String = getAppString("schema") ?: ""
+
+    /**获取文件夹路径*/
+    var onGetFolderPath: (folderName: String) -> String = {
+        "$rootFolder${File.separator}$it"
+    }
+
+    /**[dataDir]:[/data/user/0/com.wayto.plugin.gb.security]
+     * *//*
+    fun appRootFolder(context: Context = app()): File? {
+        return context.externalMediaDirs?.firstOrNull()
+    }*/
+
+    /**扩展目录下的指定文件夹
+     * [/storage/emulated/0/Android/data/包名/files/${schema}/${folder}]*/
+    fun appRootExternalFolder(folder: String = "", context: Context = app()): File {
+        // /storage/emulated/0/Android/data/com.angcyo.uicore.demo/files/$folder
+
+        /*
+        ///data/user/0/com.angcyo.uicore.demo/cache
+        context.cacheDir
+
+        ///storage/emulated/0/Android/data/com.angcyo.opencv.demo/cache
+        context.externalCacheDir
+
+        ///data/user/0/com.angcyo.uicore.demo/files
+        context.filesDir
+
+        ///storage/emulated/0/Android/data/com.angcyo.uicore.demo/files
+        context.getExternalFilesDir("")*/
+
+        //context.getExternalFilesDir(onGetFolderPath(folder))
+        return libFolderPath(onGetFolderPath(folder), context).file()
+    }
+
+    /**
+     * [folder] 文件夹名字
+     * [name] 文件夹下面的文件名
+     *
+     * 返回对应的文件, 可以直接进行读写, 不需要权限请求
+     * */
+    fun appRootExternalFolderFile(folder: String, name: String): File {
+        val externalFilesDir = appRootExternalFolder(folder)
+        return File(externalFilesDir, name)
+    }
+
+    /** Android Q 写入扩展的程序目录下的文件数据 */
+    fun writeExternal(
+        folder: String,
+        name: String,
+        data: FileTextData,
+        append: Boolean = true, /*false 强制重新写入*/
+        limitSize: Boolean = true,
+        recycle: Boolean = false,
+    ): String {
+        // /storage/emulated/0/Android/data/com.angcyo.uicore.demo/files/$type
+        var filePath = ""
+
+        try {
+            filePath = appRootExternalFolderFile(folder, name).apply {
+                filePath = writeExternal(this, data, append, limitSize, recycle)
+            }.absolutePath
+        } catch (e: Exception) {
+            L.e("写入文件失败:$e")
+        }
+
+        return filePath
+    }
+
+    /**[append]=true 根据文件大小智能判断是否要重写
+     * [limitSize] 是否限制文件大小[com.angcyo.library.utils.FileUtils.fileMaxSize]
+     * [recycle] 如果是图片数据时, 是否回收图片
+     * @return 文件路径*/
+    fun writeExternal(
+        file: File,
+        data: FileTextData,
+        append: Boolean = true,
+        limitSize: Boolean = true,
+        recycle: Boolean = false,
+    ): String {
+        var filePath: String = file.absolutePath
+
+        try {
+            val length = file.length() //文件长度, 单位字节
+            file.parentFile?.mkdirs()
+            file.apply {
+                filePath = absolutePath
+
+                if (data is Bitmap) {
+                    //保存图片
+                    outputStream().use {
+                        //data.compress(Bitmap.CompressFormat.PNG, 100, it)
+                        val format =
+                            if (data.hasAlpha()) Bitmap.CompressFormat.PNG else Bitmap.CompressFormat.JPEG
+                        data.compress(format, 100, it)
+                    }
+                    if (recycle) {
+                        try {
+                            data.recycle()
+                        } catch (e: Exception) {
+                        }
+                    }
+                } else {
+                    when {
+                        //重写文件的内容
+                        (limitSize && length >= fileMaxSize) || !append -> when (data) {
+                            is ByteArray -> writeBytes(data)
+                            is File -> writeBytes(data.readBytes())
+                            //java.lang.OutOfMemoryError: Failed to allocate a 262193160 byte allocation with 74685304 free bytes and 71MB until OOM, target footprint 536870912, growth limit 536870912
+                            else -> writeText(data.toString()) //风险方法
+                        }
+                        //追加文件的内容
+                        else -> when (data) {
+                            is ByteArray -> appendBytes(data)
+                            is File -> appendBytes(data.readBytes())
+                            else -> appendText(data.toString())
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            L.e("写入文件失败[writeExternal]:$e")
+        }
+
+        return filePath
+    }
+
+    /**从APP扩展目录下读取文件数据*/
+    fun readExternal(folder: String, name: String): String? {
+        try {
+            return appRootExternalFolderFile(folder, name).readText()
+        } catch (e: Exception) {
+            L.e("读取文件失败:$e")
+        }
+        return null
+    }
+}
+
+/**写入数据到文件, 默认无大小限制
+ * @return 文件路径*/
+fun FileTextData.writeToFile(
+    file: File,
+    append: Boolean = false,
+    limitSize: Boolean = false
+): String = writeExternal(file, this, append, limitSize)
+
+/**[UUID]*/
+fun uuid() = UUID.randomUUID().toString()
+
+/**随机一个文件名
+ * [suffix] 后缀,智能追加.
+ * */
+fun fileNameUUID(suffix: String = ""): String {
+    if (suffix.isEmpty()) {
+        return uuid()
+    }
+    return if (suffix.startsWith(".")) {
+        "${uuid()}$suffix"
+    } else {
+        "${uuid()}.$suffix"
+    }
+}
+
+/**获取一个时间文件名, 文件名不能包含空格, 否则adb pull的时候会失败
+ * [suffix] 后缀,智能追加.
+ * */
+fun fileNameTime(pattern: String = "yyyy-MM-dd_HH-mm-ss-SSS", suffix: String = ""): String {
+    val dateFormat: DateFormat = SimpleDateFormat(pattern, Locale.CHINA)
+    val name = dateFormat.format(Date())
+    return if (suffix.isEmpty() || suffix.startsWith(".")) {
+        "${name}$suffix"
+    } else {
+        "${name}.$suffix"
+    }
+}
+
+/**获取一个文件路径*/
+fun filePath(folderName: String, fileName: String = fileNameUUID()): String {
+    return "${FileUtils.appRootExternalFolder(folder = folderName).absolutePath}${File.separator}${fileName}"
+}
+
+/**获取一个文件夹路径*/
+fun folderPath(folderName: String): String {
+    return FileUtils.appRootExternalFolder(folder = folderName).absolutePath
+        ?: app().cacheDir.absolutePath
+}
+
+fun logFileName() = fileNameTime("yyyy-MM-dd", ".log")
+
+/**[append]=true 根据文件大小智能判断是否要重写*/
+fun File.writeText(data: FileTextData?, append: Boolean) =
+    writeExternal(this, data ?: "null", append)
+
+fun String?.writeTo(file: File, append: Boolean = true) =
+    writeExternal(file, this ?: "null", append)
+
+fun String?.writeTo(filePath: String?, append: Boolean = true): String? {
+    val file = filePath?.file()
+    if (file != null) {
+        return writeExternal(file, this ?: "null", append)
+    }
+    return null
+}
+
+/**
+ * 带Scheme的文件夹路径
+ * [com.angcyo.library.libFolderPath]
+ * */
+fun appFolderPath(folder: String = "", context: Context = app()): String {
+    return FileUtils.appRootExternalFolder(folder, context).absolutePath
+}

@@ -16,6 +16,8 @@ coreKtx = "1.17.0"
 lifecycleRuntimeKtx = "2.9.4"
 lifecycleViewmodelKtx = "2.9.4"
 
+hawk = "2.0.1"
+
 # compose
 lifecycleViewmodelCompose = "2.9.4"
 navigation3Ui = "1.0.0-rc01"
@@ -41,6 +43,8 @@ espressoCore = "3.7.0"
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
+
+hawk = { module = "com.orhanobut:hawk", version.ref = "hawk" }
 
 # kotlin
 kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinxSerializationCore" }

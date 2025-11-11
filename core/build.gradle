@@ -3,6 +3,10 @@ plugins {
     alias(llibs.plugins.kotlin.android)
     alias(llibs.plugins.kotlin.compose)
     alias(llibs.plugins.jetbrains.kotlin.serialization)
+
+    // ObjectBox
+    id("kotlin-kapt") // Only for Kotlin projects
+    id("io.objectbox") // Apply last
 }
 
 android {

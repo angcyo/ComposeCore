@@ -17,6 +17,9 @@ dependencies {
     api llibs.androidx.lifecycle.runtime.ktx
     api llibs.androidx.lifecycle.viewmodel.ktx
 
+    // Android
+    api llibs.hawk
+
     // kotlin
     api llibs.kotlinx.serialization.core
     api llibs.kotlinx.serialization.json
