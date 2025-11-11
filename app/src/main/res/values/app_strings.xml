@@ -1,0 +1,6 @@
+<resources>
+    <!--覆盖库中资源-->
+    <string name="lib_accessibility_label">无障碍助手</string>
+    <string name="lib_accessibility_summary">无障碍助手</string>
+    <string name="lib_accessibility_description">无障碍助手</string>
+</resources>

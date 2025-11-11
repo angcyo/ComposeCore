@@ -11,11 +11,10 @@ import com.angcyo.compose.basics.BuildConfig
 import com.angcyo.compose.basics.annotation.Config
 import com.angcyo.compose.basics.annotation.GlobalInstance
 import com.angcyo.compose.basics.annotation.Initial
-import com.angcyo.compose.basics.global.G.lastActivityRef
+import com.angcyo.compose.basics.global.RBackground.lastActivityRef
 import com.angcyo.compose.basics.hawk.RHawk
 import com.angcyo.compose.basics.unit.L
 import com.angcyo.compose.basics.unit.getAppString
-import java.lang.ref.WeakReference
 
 /**
  * @author <a href="mailto:angcyo@126.com">angcyo</a>
@@ -26,9 +25,6 @@ import java.lang.ref.WeakReference
 object G {
     @GlobalInstance
     var application: Context? = null
-
-    /**最后一个[Activity]*/
-    var lastActivityRef: WeakReference<Activity>? = null
 
     @Config
     var isGDebug = false

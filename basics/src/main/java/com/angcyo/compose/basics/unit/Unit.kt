@@ -3,6 +3,7 @@ package com.angcyo.compose.basics.unit
 import android.Manifest
 import android.content.Context
 import android.net.wifi.WifiManager
+import android.os.Looper
 import android.widget.TextView
 import androidx.collection.SimpleArrayMap
 import com.angcyo.compose.basics.global.app
@@ -123,3 +124,6 @@ fun Any?.str(def: String = ""): String {
 }
 
 fun Collection<*>?.size() = this?.size ?: 0
+
+/**是否是主线程*/
+fun isMain() = Looper.getMainLooper() == Looper.myLooper()

@@ -23,6 +23,7 @@ import androidx.annotation.Px
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import com.angcyo.compose.basics.global.PlaceholderApplication
+import com.angcyo.compose.basics.global.app
 import com.angcyo.compose.basics.global.lastContext
 import java.util.Locale
 
@@ -34,8 +35,11 @@ import java.util.Locale
  * Copyright (c) 2019 ShenZhen O&M Cloud Co., Ltd. All rights reserved.
  */
 
-/**获取状态栏定义的高度*/
-/*fun Context.getStatusBarHeight(): Int {
+val density: Float get() = Resources.getSystem()?.displayMetrics?.density ?: 0f
+val dp: Float get() = Resources.getSystem()?.displayMetrics?.density ?: 0f
+val dpi: Int get() = Resources.getSystem()?.displayMetrics?.density?.toInt() ?: 0
+
+/**获取状态栏定义的高度*//*fun Context.getStatusBarHeight(): Int {
     return defaultDensityAdapter {
         val resources = resources
         var result = 0
@@ -50,8 +54,7 @@ import java.util.Locale
 /**
  * 导航栏定义的高度, 并非当前显示的高度
  * @see [navBarHeight]
- */
-/*fun Context.getNavBarHeight(): Int {
+ *//*fun Context.getNavBarHeight(): Int {
     return defaultDensityAdapter {
         val resources = resources
         val resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android")
@@ -201,8 +204,7 @@ fun localResources(context: Context, locale: Locale?): Resources {
 
 //---
 
-/**是否是暗黑模式*/
-/*fun isDarkMode(context: Context = lastContext): Boolean {
+/**是否是暗黑模式*//*fun isDarkMode(context: Context = lastContext): Boolean {
     return when (AppCompatDelegate.getDefaultNightMode()) {
         AppCompatDelegate.MODE_NIGHT_YES -> true
         AppCompatDelegate.MODE_NIGHT_NO -> false
@@ -243,3 +245,23 @@ fun AttributeSet.getAndroidAttrInt(attribute: String, defValue: Int) =
  * */
 fun AttributeSet.getAppAttrInt(attribute: String, defValue: Int) =
     getAttributeIntValue("http://schemas.android.com/apk/res-auto", attribute, defValue)
+
+
+fun View.getScreenWidth() = resources.displayMetrics.widthPixels
+
+/**排除了显示的状态栏高度和导航栏高度*/
+fun View.getScreenHeight() = resources.displayMetrics.heightPixels
+
+fun Context.getScreenWidth() = resources.displayMetrics.widthPixels
+
+/**排除了显示的状态栏高度和导航栏高度*/
+fun Context.getScreenHeight() = resources.displayMetrics.heightPixels
+
+/**导航栏正在显示的高度*/
+fun Context?.getNavBarHeightShow() = activityContent()?.navBarHeight() ?: 0
+
+/**排除了显示的状态栏高度和导航栏高度*/
+val _screenWidth: Int get() = app().getScreenWidth()
+val _screenHeight: Int get() = app().getScreenHeight()
+//val _statusBarHeight: Int get() = app().getStatusBarHeight()
+//val _navBarHeight: Int get() = app().getNavBarHeight()
