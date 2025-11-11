@@ -50,6 +50,14 @@ open class Page {
     val currentEndIndex: Int
         get() = currentStartIndex + requestPageSize
 
+    /**是否有更多需要加载*/
+    val haveLoadMore: Boolean
+        get() = requestPageIndex <= _currentPageIndex
+
+    /**是否加载结束*/
+    val isLoadEnd: Boolean
+        get() = requestPageIndex == _currentPageIndex
+
     /**页面刷新, 重置page index*/
     open fun pageRefresh() {
         _currentPageIndex = firstPageIndex
@@ -99,6 +107,10 @@ open class Page {
     var keyCurrent: String = KEY_CURRENT
 
     var keySize: String = KEY_SIZE
+
+    override fun toString(): String {
+        return "(当前页:$_currentPageIndex, 请求页:$requestPageIndex, 请求数量:$requestPageSize)"
+    }
 }
 
 /**单页请求, 无加载更多*/

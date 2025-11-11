@@ -23,3 +23,10 @@ fun Modifier.bounds(
     brush: Brush = SolidColor(Color.Magenta),
     shape: Shape = RectangleShape
 ) = border(width, brush, shape)
+
+/**显示元素的边界*/
+@Stable
+fun Modifier.it(
+    enable: Boolean = true,
+    action: Modifier.() -> Modifier
+) = if (enable) action() else this

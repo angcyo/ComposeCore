@@ -41,11 +41,16 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.State
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.LayoutDirection
@@ -94,7 +99,7 @@ import com.angcyo.compose.core.nav.LocalNavRouter
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScaffoldScreen(
-    modifier: Modifier = Modifier,
+    scaffoldModifier: Modifier = Modifier,
     //--
     topBar: @Composable (() -> Unit)? = null,
     bottomBar: @Composable (() -> Unit)? = null,
@@ -112,7 +117,7 @@ fun ScaffoldScreen(
         LocalSnackbar provides snackbarHostState,
     ) {
         Scaffold(
-            modifier = modifier,
+            modifier = scaffoldModifier,
             topBar = topBar ?: {
                 TopAppBar(
                     colors = topAppBarColors(
@@ -187,7 +192,7 @@ val LocalSnackbar = compositionLocalOf<SnackbarHostState?> { null }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScaffoldListScreen(
-    modifier: Modifier = Modifier,
+    scaffoldModifier: Modifier = Modifier,
     //--
     topBar: @Composable (() -> Unit)? = null,
     bottomBar: @Composable (() -> Unit)? = null,
@@ -195,21 +200,42 @@ fun ScaffoldListScreen(
     floatingActionButton: @Composable (() -> Unit)? = null,
     //--TopAppBar
     title: String? = null,
+    //--PullToRefreshBox
+    isRefreshing: Boolean = false,
+    onRefresh: (() -> Unit)? = null,
+    refreshModifier: Modifier = Modifier,
     //--
-    content: LazyListScope.() -> Unit,
+    contentRefreshState: State<Int>? = null,
+    content: LazyListScope.(refreshCount: Int) -> Unit,
 ) {
+    var contentRefresh by remember { mutableIntStateOf(0) }
+    val body = @Composable {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            content(contentRefreshState?.value ?: -1)
+            //content(contentRefresh)
+        }
+    }
+    //--
     ScaffoldScreen(
-        modifier = modifier,
+        scaffoldModifier = scaffoldModifier,
         topBar = topBar,
         bottomBar = bottomBar,
         snackbarHost = snackbarHost,
         floatingActionButton = floatingActionButton,
         title = title,
     ) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            content()
+        if (onRefresh == null) {
+            body()
+        } else {
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = onRefresh,
+                modifier = refreshModifier
+            ) {
+                body()
+            }
         }
     }
 }

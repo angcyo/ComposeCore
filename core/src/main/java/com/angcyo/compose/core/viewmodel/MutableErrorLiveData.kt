@@ -44,21 +44,17 @@ open class MutableErrorLiveData<T>(value: T? = null) : MutableLiveData<T>(value)
 
     /**当[T]是一个集合时, 将[value]全部添加到集合中*/
     @MainThread
-    fun addSubValue(value: T?) {
-        when (this.value) {
-            this.value -> {
-                setValue(value)
-            }
-
-            is MutableList<*> -> {
-                val list = this.value as MutableList<Any>
-                list.addAll(value as Collection<Any>)
+    fun addSubValue(value: T?, clone: Boolean = false) {
+        if (this.value is MutableList<*>) {
+            val list = this.value as MutableList<Any>
+            list.addAll(value as Collection<Any>)
+            if (clone) {
+                setValue(list.toList() as T?)
+            } else {
                 setValue(list as T?)
             }
-
-            else -> {
-                setValue(value)
-            }
+        } else {
+            setValue(value)
         }
     }
 

@@ -556,6 +556,13 @@ inline fun <reified T : Any> KClass<T>.removeAll(
     return boxOf.removeAll(block)
 }
 
+/** 删除/清空 Entity 中的所有数据*/
+inline fun <reified T : Any> KClass<T>.clearEntity() {
+    val cls = this.java
+    val box = boxOf(cls)
+    box.removeAll()
+}
+
 //endregion ---remove---
 
 //region ---save---
