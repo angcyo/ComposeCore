@@ -9,6 +9,7 @@ kotlinSerialization = "2.2.21"
 # https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-serialization-core
 kotlinxSerializationCore = "1.9.0"
 # https://mvnrepository.com/artifact/androidx.compose/compose-bom
+# https://developer.android.com/develop/ui/compose/bom/bom-mapping?hl=zh-cn
 composeBom = "2025.11.00"
 
 # android
@@ -19,6 +20,7 @@ lifecycleViewmodelKtx = "2.9.4"
 hawk = "2.0.1"
 
 # compose
+runtimeLivedata = "1.10.0-beta02"
 lifecycleViewmodelCompose = "2.9.4"
 navigation3Ui = "1.0.0-rc01"
 adaptive = "1.2.0"
@@ -56,6 +58,7 @@ androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "u
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose"}
 androidx-compose-ui-unit = { group = "androidx.compose.ui", name = "ui-unit"}
+androidx-runtime-livedata = { module = "androidx.compose.runtime:runtime-livedata"}
 
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-compose-material3-adaptive = { group = "androidx.compose.material3.adaptive", name = "adaptive" }

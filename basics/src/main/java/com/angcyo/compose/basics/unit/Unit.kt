@@ -121,3 +121,5 @@ fun Any?.str(def: String = ""): String {
         this.toString()
     }
 }
+
+fun Collection<*>?.size() = this?.size ?: 0

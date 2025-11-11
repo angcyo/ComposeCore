@@ -4,18 +4,18 @@
   "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
   "entities": [
     {
-      "id": "1:5551040427310851997",
-      "lastPropertyId": "2:8056104404925059784",
-      "name": "TestEntity",
+      "id": "2:5586037913617679890",
+      "lastPropertyId": "2:2749886324730499312",
+      "name": "PlaceholderEntity",
       "properties": [
         {
-          "id": "1:3234044570697866845",
-          "name": "id",
+          "id": "1:5381811181173509636",
+          "name": "entityId",
           "type": 6,
           "flags": 1
         },
         {
-          "id": "2:8056104404925059784",
+          "id": "2:2749886324730499312",
           "name": "name",
           "type": 9
         }
@@ -23,15 +23,20 @@
       "relations": []
     }
   ],
-  "lastEntityId": "1:5551040427310851997",
+  "lastEntityId": "2:5586037913617679890",
   "lastIndexId": "0:0",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
   "modelVersion": 5,
   "modelVersionParserMinimum": 5,
-  "retiredEntityUids": [],
+  "retiredEntityUids": [
+    5551040427310851997
+  ],
   "retiredIndexUids": [],
-  "retiredPropertyUids": [],
+  "retiredPropertyUids": [
+    3234044570697866845,
+    8056104404925059784
+  ],
   "retiredRelationUids": [],
   "version": 1
 }

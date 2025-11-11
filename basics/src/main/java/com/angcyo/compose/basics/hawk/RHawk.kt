@@ -45,8 +45,8 @@ object RHawk {
             )
             if (hawkXmlFile.exists()) {
                 hawkPath = hawkXmlFile.absolutePath
-                L.i("Hawk初始化在->$hawkPath")
             }
+            L.i("初始化Hawk -> $hawkPath")
         }
         try {
             if (!Hawk.isBuilt()) {

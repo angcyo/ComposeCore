@@ -1,5 +1,6 @@
 package com.angcyo.compose.core.screen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -19,10 +21,14 @@ import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.staggeredgrid.LazyHorizontalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
@@ -41,9 +47,11 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.angcyo.compose.core.nav.LocalCurrentRoute
+import com.angcyo.compose.core.nav.LocalNavRouter
 
 /**
  * @author <a href="mailto:angcyo@126.com">angcyo</a>
@@ -97,7 +105,9 @@ fun ScaffoldScreen(
     //--
     content: @Composable (PaddingValues) -> Unit
 ) {
+    val router = LocalNavRouter.current
     val snackbarHostState = remember { SnackbarHostState() }
+    //val ripple = rememberRipple(bounded = true)
     CompositionLocalProvider(
         LocalSnackbar provides snackbarHostState,
     ) {
@@ -111,6 +121,24 @@ fun ScaffoldScreen(
                     ),
                     title = {
                         Text(title ?: LocalCurrentRoute.current?.showLabel ?: "")
+                    },
+                    navigationIcon = {
+                        if (router?.isFirstRoute() == true) {
+                            //main
+                        } else {
+                            //back
+                            Icon(
+                                Icons.AutoMirrored.Outlined.ArrowBack,
+                                null,
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .clickable {
+                                        router?.pop()
+                                    }
+                                    .padding(12.dp)
+                                    .size(24.dp)
+                            )
+                        }
                     },
                     scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
                 )

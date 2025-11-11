@@ -24,11 +24,14 @@ import io.objectbox.BoxStore
 import io.objectbox.BoxStoreBuilder
 import io.objectbox.Property
 import io.objectbox.android.Admin
+import io.objectbox.android.AndroidScheduler
 import io.objectbox.annotation.Entity
 import io.objectbox.config.DebugFlags
 import io.objectbox.exception.DbException
+import io.objectbox.query.OrderFlags
 import io.objectbox.query.QueryBuilder
 import io.objectbox.query.QueryCondition
+import io.objectbox.reactive.DataSubscription
 import java.io.File
 import kotlin.math.max
 import kotlin.reflect.KClass
@@ -123,7 +126,7 @@ object RObjectBox {
             try {
                 val boxStore: BoxStore = buildStore(context, pkg, storeBuilder)
                 boxStoreMap.put(pkg, boxStore)
-                L.w("数据库:${_dbName} ${BoxStore.getVersionNative()} 路径:${pkg} -> ${dbDirectory.absolutePath}")
+                L.w("初始化数据库:${_dbName} 版本:${BoxStore.getVersionNative()} 路径:${pkg} -> ${dbDirectory.absolutePath}")
             } catch (e: DbException) {
                 //e.printStackTrace();
                 //io.objectbox.exception.DbException, 数据库初始化异常.一般是迁移导致的,改变了字段的数据类型
@@ -315,6 +318,18 @@ inline fun <reified T : Any> KClass<T>.box(
 //endregion ---Box BoxStore---
 
 //region ---query find---
+
+/**观察数据表数据的变化
+ * [DataSubscription.cancel]*/
+inline fun <reified T : Any> KClass<T>.observer(noinline action: (List<T>) -> Unit): DataSubscription {
+    val cls = this.java
+    return boxOf(cls)
+        .query()
+        .build()
+        .subscribe()
+        .on(AndroidScheduler.mainThread())
+        .observer(action)
+}
 
 /**返回所有记录的数量*/
 inline fun <reified T : Any> KClass<T>.count(packageName: String = defaultBoxStore()): Long {

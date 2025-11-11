@@ -1,4 +1,4 @@
-package com.angcyo.compose.app
+package com.angcyo.compose.core
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStore
