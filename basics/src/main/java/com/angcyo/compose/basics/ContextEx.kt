@@ -162,6 +162,7 @@ fun turnScreenOnOff(
         //亮屏 //（唤醒）
         if (!execAsRoot("input keyevent 224")) {
             if (activity != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                activity.setShowWhenLocked(true)
                 activity.setTurnScreenOn(true)
             } else {
                 val pm = lastContext.getSystemService(Context.POWER_SERVICE) as PowerManager
@@ -185,6 +186,7 @@ fun turnScreenOnOff(
                 // 需测试并确认可用性
                 accService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_LOCK_SCREEN)
             } else if (activity != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                activity.setShowWhenLocked(false)
                 activity.setTurnScreenOn(false)
             }
         }
