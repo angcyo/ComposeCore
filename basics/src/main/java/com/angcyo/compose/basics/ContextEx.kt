@@ -19,10 +19,14 @@ import android.text.TextUtils
 import android.widget.Toast
 import androidx.core.net.toUri
 import com.angcyo.compose.basics.annotation.Api
+import com.angcyo.compose.basics.coroutine.sleep
 import com.angcyo.compose.basics.global.lastActivity
 import com.angcyo.compose.basics.global.lastContext
 import com.angcyo.compose.basics.unit.L
 import com.angcyo.compose.basics.unit.invokeMethod
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 /**
  * @author <a href="mailto:angcyo@126.com">angcyo</a>
@@ -135,7 +139,25 @@ fun Context.startAppWithRoot(packageName: String): Boolean {
     return false
 }
 
-/**使用Root的方式执行命令*/
+/**使用Root的方式执行命令
+ * ```
+ * # 唤醒
+ * adb shell input keyevent 224
+ * # 滑动解锁（按设备分辨率调整）
+ * adb shell input swipe 300 1000 300 300
+ * # 输入 PIN (示例 1234)
+ * adb shell input text 1234
+ * adb shell input keyevent 66
+ * ```
+ *
+ * ```
+ * # 需 su 权限
+ * su -c "input keyevent 224"
+ * su -c "input swipe 300 1000 300 300"
+ * su -c "input text 1234"
+ * su -c "input keyevent 66"
+ * ```
+ * */
 @Api
 fun execAsRoot(cmd: String): Boolean {
     try {
@@ -154,8 +176,12 @@ fun execAsRoot(cmd: String): Boolean {
  * - [accService] 灭屏时有效
  * */
 @Api
+@OptIn(DelicateCoroutinesApi::class)
 fun turnScreenOnOff(
-    on: Boolean = true, timeoutMs: Long = 3000L, accService: AccessibilityService? = null,
+    on: Boolean = true,
+    timeoutMs: Long = 3000L,
+    accService: AccessibilityService? = null,
+    unlock: Boolean = true
 ) {
     val activity = lastActivity
     if (on) {
@@ -178,6 +204,16 @@ fun turnScreenOnOff(
                 }
             }
         }
+        if (unlock) {
+            //亮屏,解锁
+            wakeUpAndUnlock(activity ?: lastContext, unlock = true)
+            // 全局协程
+            GlobalScope.launch {
+                sleep(1000)
+                execAsRoot("input swipe 300 1000 300 300")
+            }
+        }
+
     } else {
         //灭屏 //（使设备睡眠）
         if (!execAsRoot("input keyevent 223")) {
@@ -201,6 +237,7 @@ fun turnScreenOnOff(
 fun wakeUpAndUnlock(
     context: Context,
     wakeLock: Boolean = true /*亮屏(并解锁) or 灭屏*/,
+    unlock: Boolean = true /*解锁*/,
     succeededAction: Runnable? = null
 ) {
     // 获取电源管理器对象
@@ -226,6 +263,18 @@ fun wakeUpAndUnlock(
                 handler.post(succeededAction)
             }
         }
+    } else {
+        if (screenOn) {
+//                PowerManager.WakeLock wl = pm.newWakeLock(
+//                        PowerManager.PARTIAL_WAKE_LOCK,
+//                        context.getPackageName() + ":bright");
+//                wl.acquire();
+//                wl.release();
+            //android.permission.DEVICE_POWER
+            pm.invokeMethod("goToSleep", SystemClock.uptimeMillis(), 0, 0)
+        }
+    }
+    if (unlock) {
         // 屏幕解锁
         val keyguardManager = context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
         if (keyguardManager.isKeyguardLocked) {
@@ -266,16 +315,6 @@ fun wakeUpAndUnlock(
                     handler.post(succeededAction)
                 }
             }
-        }
-    } else {
-        if (screenOn) {
-//                PowerManager.WakeLock wl = pm.newWakeLock(
-//                        PowerManager.PARTIAL_WAKE_LOCK,
-//                        context.getPackageName() + ":bright");
-//                wl.acquire();
-//                wl.release();
-            //android.permission.DEVICE_POWER
-            pm.invokeMethod("goToSleep", SystemClock.uptimeMillis(), 0, 0)
         }
     }
 }
