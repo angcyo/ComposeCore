@@ -13,8 +13,8 @@ def _namespace = project.hasProperty("namespace") ? project.ext.namespace : appl
 
 def _minify_enabled_debug = project.hasProperty("minify_enabled_debug") ? (project.ext.minify_enabled_debug == "true") : false
 def _use_proguard_debug = project.hasProperty("use_proguard_debug") ? (project.ext.use_proguard_debug == "true") : false
-def _minify_enabled = project.hasProperty("minify_enabled") ? (project.ext.minify_enabled == "true") : _minify_enabled_debug
-def _use_proguard = project.hasProperty("use_proguard") ? (project.ext.use_proguard == "true") : _minify_enabled
+def _minify_enabled = project.hasProperty("minify_enabled") ? (project.ext.minify_enabled == "true") : true
+def _use_proguard = project.hasProperty("use_proguard") ? (project.ext.use_proguard == "true") : true
 
 android {
     if (project.android.hasProperty("namespace")) {
