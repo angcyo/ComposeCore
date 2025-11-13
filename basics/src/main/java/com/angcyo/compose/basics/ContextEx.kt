@@ -42,6 +42,15 @@ fun toastQQ(message: CharSequence, duration: Int = Toast.LENGTH_SHORT) {
     lastContext.toast(message, duration)
 }
 
+/**判断应用是否需要请求忽略电池优化的步骤*/
+fun Context.isIgnoringBatteryOptimizations(): Boolean {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager?
+        return powerManager != null && powerManager.isIgnoringBatteryOptimizations(packageName)
+    }
+    return true // 对于低于 API 23，电池优化不受影响
+}
+
 /**请求忽略电池优化
  * ```
  * <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
@@ -53,9 +62,11 @@ fun toastQQ(message: CharSequence, duration: Int = Toast.LENGTH_SHORT) {
  * ```
  * */
 fun Context.requestIgnoreBatteryOptimizations() {
-    val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
-    intent.data = "package:${packageName}".toUri()
-    startActivity(intent)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+        intent.data = "package:${packageName}".toUri()
+        startActivity(intent)
+    }
 }
 
 /**启动指定的应用程序
