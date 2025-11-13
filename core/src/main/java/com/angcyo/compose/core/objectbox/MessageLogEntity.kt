@@ -3,6 +3,8 @@ package com.angcyo.compose.core.objectbox
 import androidx.annotation.Keep
 import com.angcyo.compose.basics.unit.Page
 import com.angcyo.compose.basics.unit.nowTime
+import com.angcyo.compose.core.viewmodel.updateValue
+import com.angcyo.compose.core.viewmodel.vmData
 import io.objectbox.annotation.Entity
 import io.objectbox.annotation.Id
 
@@ -34,12 +36,17 @@ data class MessageLogEntity(
 ) {
     companion object {
 
+        /**是否有数据更新*/
+        val messageLogUpdateData = vmData(0)
+
         /**保存一条记录
          * @return 数据id*/
         fun save(content: String? = null): Long {
             val entity = MessageLogEntity()
             entity.content = content
-            return boxOf(MessageLogEntity::class).put(entity)
+            val id = boxOf(MessageLogEntity::class).put(entity)
+            messageLogUpdateData.updateValue(messageLogUpdateData.value!! + 1)
+            return id
         }
 
         /**分页查询, 降序*/

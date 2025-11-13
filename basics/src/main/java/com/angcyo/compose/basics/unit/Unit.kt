@@ -35,7 +35,7 @@ fun nowTimeString(pattern: String = "yyyy-MM-dd HH:mm:ss.SSS"): String {
 }
 
 /**格式化时间输出*/
-fun Long.toTime(pattern: String = "yyyy-MM-dd HH:mm"): String {
+fun Long.toTime(pattern: String = "yyyy-MM-dd HH:mm:ss.SSS"): String {
     val format: SimpleDateFormat = SimpleDateFormat.getDateInstance() as SimpleDateFormat
     format.applyPattern(pattern)
     return format.format(Date(this))

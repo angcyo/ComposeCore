@@ -62,6 +62,8 @@ fun <T> LiveData<T>.watchForever(
 /**快速观察[LiveData]
  * [autoClear] 收到数据后, 是否要情况数据
  * [allowBackward] 是否允许数据倒灌, 接收到旧数据
+ *
+ * - [LiveData.removeObserver]
  * */
 @MainThread
 fun <T> LiveData<T>.observe(
@@ -91,7 +93,10 @@ fun <T> LiveData<T>.observe(
     return result
 }
 
-/**[observe]*/
+/**[observe]
+ *
+ * - [LiveData.removeObserver]
+ * */
 @MainThread
 fun <T> LiveData<T>.watch(
     owner: LifecycleOwner,
